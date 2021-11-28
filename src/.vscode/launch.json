@@ -1,0 +1,101 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Web",
+            "type": "blazorwasm",
+            "request": "launch",
+            "preLaunchTask": "build-web",
+            "program": "${workspaceFolder}/ByteartRetail.WebApp/bin/Debug/net6.0/ByteartRetail.WebApp.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/ByteartRetail.WebApp",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "ShoppingCart",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-shopping-carts",
+            "program": "${workspaceFolder}/ByteartRetail.Services.ShoppingCarts/bin/Debug/net6.0/ByteartRetail.Services.ShoppingCarts.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/ByteartRetail.Services.ShoppingCarts",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "Customers",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-customers",
+            "program": "${workspaceFolder}/ByteartRetail.Services.Customers/bin/Debug/net6.0/ByteartRetail.Services.Customers.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/ByteartRetail.Services.Customers",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "ProductCatalog",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-product-catalog",
+            "program": "${workspaceFolder}/ByteartRetail.Services.ProductCatalog/bin/Debug/net6.0/ByteartRetail.Services.ProductCatalog.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/ByteartRetail.Services.ProductCatalog",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "All",
+            "configurations": [
+                "ShoppingCart",
+                "Customers",
+                "ProductCatalog",
+                "Web"
+            ]
+        }
+    ]
+}

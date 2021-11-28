@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "ByteartRetail.Services.Customer": {
+    "ByteartRetail.Services.Customers": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

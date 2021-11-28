@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteartRetail.Services.Prod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteartRetail.AspNetCore", "ByteartRetail.AspNetCore\ByteartRetail.AspNetCore.csproj", "{FDED73F5-7FDC-447D-98C6-CCB78C29F3DA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteartRetail.Services.Customers", "ByteartRetail.Services.Customer\ByteartRetail.Services.Customers.csproj", "{0AA87348-35E7-468F-85CF-F5F3B70AA292}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteartRetail.Services.Customers", "ByteartRetail.Services.Customers\ByteartRetail.Services.Customers.csproj", "{0AA87348-35E7-468F-85CF-F5F3B70AA292}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteartRetail.Services.ShoppingCarts", "ByteartRetail.Services.ShoppingCarts\ByteartRetail.Services.ShoppingCarts.csproj", "{32DD992E-A949-4C51-912A-6C5F3AD8CD55}"
 EndProject
