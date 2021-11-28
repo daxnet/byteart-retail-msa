@@ -1,0 +1,59 @@
+﻿@page "/products"
+@using System.Text.Json
+@using ByteartRetail.WebApp.Models
+@inject HttpClient HttpClient
+@inject IToastService toastService
+
+<PageTitle>商品信息</PageTitle>
+
+<h1>商品信息</h1>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>描述</th>
+                <th>价格</th>
+                <th style="min-width: 150px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in products)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>@p.Description</td>
+                    <td>@p.Price</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="@(async () => await AddToCartAsync(p.Id))">加入购物车</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private ProductSummary[]? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await HttpClient.GetFromJsonAsync<ProductSummary[]>("http://localhost:5293/api/ProductCatalog").ConfigureAwait(false);
+
+    }
+
+    private async Task AddToCartAsync(Guid productId)
+    {
+        toastService.ShowInfo(productId.ToString(), "成功");
+
+        Console.WriteLine(productId);
+
+        await Task.Delay(0);
+    }
+}

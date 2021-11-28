@@ -1,0 +1,13 @@
+# The docker compose file for running the infrastructure
+# services for development purposes.
+
+version: '3.8'
+volumes:
+    mongo_data:
+services:
+    byteartretail-mongo:
+        image: mongo
+        volumes:
+            - mongo_data:/data/db:Z
+        ports:
+            - "27017:27017"
