@@ -1,6 +1,4 @@
 #! /bin/bash
-if [ $(mongo localhost:27017 --eval 'db.getMongo().getDBNames().indexOf("mydb")' --quiet) -lt 0 ]; then
-    echo "mydb does not exist"
-else
-    echo "mydb exists"
-fi
+mongo br_customers --eval "db.dropDatabase()"
+mongo br_product_catalog --eval "db.dropDatabase()"
+mongorestore
