@@ -6,8 +6,7 @@ volumes:
     mongo_data:
 services:
     byteartretail-mongo:
-        image: mongo
-        volumes:
-            - mongo_data:/data/db:Z
-        ports:
-            - "27017:27017"
+        image: daxnet/byteartretail-mongo
+        build:
+            context: docker/mongo
+            dockerfile: Dockerfile
