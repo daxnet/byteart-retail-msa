@@ -1,5 +1,6 @@
 using ByteartRetail.Common.DataAccess;
 using ByteartRetail.DataAccess.Mongo;
+using ByteartRetail.Services.ShoppingCarts.ServiceClients;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,11 @@ var configuration = builder.Configuration;
 var mongoConnectionString = configuration["mongo:connectionString"];
 var mongoDatabase = configuration["mongo:database"];
 builder.Services.AddScoped<IDataAccessObject>(serviceProvider => new MongoDataAccessObject(new MongoUrl(mongoConnectionString), mongoDatabase));
-
+builder.Services.AddHttpClient<ProductCatalogServiceClient>(config =>
+{
+    config.BaseAddress = new Uri(builder.Configuration["serviceClient:productCatalog:url"]);
+    config.Timeout = TimeSpan.FromMinutes(1);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "ByteartRetail.Services.Customers": {
+    "ByteartRetail.Services.Gateway": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5012",
+      "applicationUrl": "http://localhost:5237",
       "dotnetRunMessages": true
     }
   }

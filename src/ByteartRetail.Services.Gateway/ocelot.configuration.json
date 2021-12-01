@@ -1,0 +1,96 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5012
+        }
+      ],
+      "UpstreamPathTemplate": "/customer-service/{everything}",
+      "UpstreamHttpMethod": [
+        "Get",
+        "Post",
+        "Put",
+        "Patch",
+        "Delete",
+        "Options"
+      ],
+      "SwaggerKey": "CustomerService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5293
+        }
+      ],
+      "UpstreamPathTemplate": "/product-catalog-service/{everything}",
+      "UpstreamHttpMethod": [
+        "Get",
+        "Post",
+        "Put",
+        "Patch",
+        "Delete",
+        "Options"
+      ],
+      "SwaggerKey": "ProductCatalogService"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5152
+        }
+      ],
+      "UpstreamPathTemplate": "/shopping-cart-service/{everything}",
+      "UpstreamHttpMethod": [
+        "Get",
+        "Post",
+        "Put",
+        "Patch",
+        "Delete",
+        "Options"
+      ],
+      "SwaggerKey": "ShoppingCartService"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "CustomerService",
+      "Config": [
+        {
+          "Name": "Customer Service API",
+          "Version": "v1",
+          "Url": "http://localhost:5012/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "ProductCatalogService",
+      "Config": [
+        {
+          "Name": "Product Catalog API",
+          "Version": "v1",
+          "Url": "http://localhost:5293/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "ShoppingCartService",
+      "Config": [
+        {
+          "Name": "Shopping Cart API",
+          "Version": "v1",
+          "Url": "http://localhost:5152/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ]
+}
