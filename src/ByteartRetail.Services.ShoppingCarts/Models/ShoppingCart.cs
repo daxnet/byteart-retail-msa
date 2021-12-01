@@ -8,6 +8,29 @@ namespace ByteartRetail.Services.ShoppingCarts.Models
 
         public Guid CustomerId { get; set; }
 
-        public List<LineItem> LineItems { get; set; } = new();
+        public List<ShoppingCartLineItem> LineItems { get; set; } = new();
+
+        public bool AddItem(ShoppingCartLineItem item)
+        {
+            if (item.Quantity > 0)
+            {
+                if (!LineItems.Any(li => li.ProductId == item.ProductId))
+                {
+                    LineItems.Add(item);
+                }
+                else
+                {
+                    var existingItem = LineItems.First(li => li.ProductId == item.ProductId);
+                    if (existingItem != null)
+                    {
+                        existingItem.Quantity += item.Quantity;
+                        existingItem.Amount += item.Amount;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+        }
     }
 }
