@@ -20,6 +20,20 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
             _productCatalogServiceClient = productCatalogServiceClient;
         }
 
+        [HttpGet("customer/{customerId}")]
+        public async Task<IActionResult> GetShoppingCartByCustomerIdAsync(Guid customerId)
+        {
+            var shoppingCart = await Dao
+                .GetAsync<ShoppingCart>(cart => cart.CustomerId == customerId, cart => cart.CustomerId)
+                .ConfigureAwait(false);
+            if (shoppingCart?.Count > 0)
+            {
+                return Ok(shoppingCart.First());
+            }
+
+            return NotFound();
+        }
+
         [HttpPost]
         [Route("add-product")]
         public async Task<IActionResult> AddProductToCartAsync([FromBody] AddToCartRequest request)
@@ -27,6 +41,11 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (request.Quantity <= 0)
+            {
+                return BadRequest("Quantity must be greater than 0.");
             }
 
             var shoppingCart = (await Dao
