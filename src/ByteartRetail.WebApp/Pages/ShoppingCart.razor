@@ -1,0 +1,92 @@
+@page "/shopping-cart"
+@using ByteartRetail.WebApp.Models
+@using System.Text.Json
+@using System.Text
+@inject HttpClient HttpClient
+@inject UserState UserState
+@inject IJSRuntime JS
+@inject IToastService toastService
+@inject NavigationManager NavManager
+
+<PageTitle>购物车</PageTitle>
+
+<h1>@UserState.UserName 的购物车</h1>
+@if (shoppingCartModel == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>商品单价</th>
+            <th>购买数量</th>
+            <th>小计金额</th>
+            <th style="min-width: 150px;">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in shoppingCartModel.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.ProductPrice.ToString("C")</td>
+                <td>@item.Quantity</td>
+                <td>@item.LineAmount.ToString("C")</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="@(async() => await RemoveItemFromCartAsync(item.ProductId))">删除本行</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <h3>总计金额：@shoppingCartModel.Items.Sum(x=>x.LineAmount).ToString("C")</h3>
+    <button class="btn btn-success" @onclick="@NavigateToCheckoutPage">一键下单</button>
+}
+
+
+@code {
+    private ShoppingCartViewModel? shoppingCartModel;
+
+    protected override async Task OnInitializedAsync() => await LoadShoppingCartItemsAsync();
+
+    private async Task LoadShoppingCartItemsAsync()
+    {
+        shoppingCartModel = await HttpClient.GetFromJsonAsync<ShoppingCartViewModel>($"shopping-cart-service/ShoppingCarts/customer/{UserState.UserId}");
+    }
+
+    private async Task RemoveItemFromCartAsync(Guid productId)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", new []{ "确认删除当前行？" }))
+        {
+            return;
+        }
+
+        try
+        {
+            var payload = new
+            {
+                customerId = UserState.UserId,
+                productId
+            };
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var responseMessage = await HttpClient.PostAsync("shopping-cart-service/ShoppingCarts/remove-product", content);
+            responseMessage.EnsureSuccessStatusCode();
+            await LoadShoppingCartItemsAsync();
+            toastService.ShowSuccess("操作成功");
+        }
+        catch (Exception e)
+        {
+            toastService.ShowError(e.Message, "操作失败");
+            throw;
+        }
+        
+    }
+
+    private void NavigateToCheckoutPage()
+    {
+        NavManager.NavigateTo("checkout");
+    }
+}

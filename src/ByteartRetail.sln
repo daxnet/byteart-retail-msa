@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteartRetail.WebApp", "Byt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteartRetail.Services.Gateway", "ByteartRetail.Services.Gateway\ByteartRetail.Services.Gateway.csproj", "{ED862D80-BA75-45C9-B118-7158EFF1192A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteartRetail.Messaging.RabbitMQ", "ByteartRetail.Messaging.RabbitMQ\ByteartRetail.Messaging.RabbitMQ.csproj", "{431674DC-C073-49A3-A086-63FB529D5FA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{ED862D80-BA75-45C9-B118-7158EFF1192A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED862D80-BA75-45C9-B118-7158EFF1192A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED862D80-BA75-45C9-B118-7158EFF1192A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{431674DC-C073-49A3-A086-63FB529D5FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{431674DC-C073-49A3-A086-63FB529D5FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{431674DC-C073-49A3-A086-63FB529D5FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{431674DC-C073-49A3-A086-63FB529D5FA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{32DD992E-A949-4C51-912A-6C5F3AD8CD55} = {17C75289-5FCC-46CB-B3F9-A9C77111A1D2}
 		{488EB47F-66B4-4DED-8A53-66DC8255B1DE} = {05B2EA7A-8352-4E61-80A4-A8C125F95111}
 		{ED862D80-BA75-45C9-B118-7158EFF1192A} = {17C75289-5FCC-46CB-B3F9-A9C77111A1D2}
+		{431674DC-C073-49A3-A086-63FB529D5FA5} = {5D95E63C-6321-4188-82F3-817225B43172}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D763707-F922-4ECC-A7B0-E1040A36451C}

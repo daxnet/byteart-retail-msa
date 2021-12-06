@@ -32,5 +32,17 @@ namespace ByteartRetail.Services.ShoppingCarts.Models
 
             return false;
         }
+
+        public bool RemoveItem(Guid productId)
+        {
+            var idx = LineItems.FindIndex(li => li.ProductId == productId);
+            if (idx >= 0)
+            {
+                LineItems.RemoveAt(idx);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

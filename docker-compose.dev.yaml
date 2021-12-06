@@ -4,6 +4,7 @@
 version: '3.8'
 volumes:
     mongo_data:
+    rabbitmq_data:
 services:
     byteartretail-mongo:
         image: mongo
@@ -11,3 +12,14 @@ services:
             - mongo_data:/data/db:Z
         ports:
             - "27017:27017"
+    byteartretail-rabbitmq:
+        image: rabbitmq:3.9.11-management
+        ports:
+            - "5672:5672"
+            - "4369:4369"
+            - "5671:5671"
+            - "25672:25672"
+            - "15672:15672"
+        hostname: byteartretail-rabbitmq
+        volumes:
+          - rabbitmq_data

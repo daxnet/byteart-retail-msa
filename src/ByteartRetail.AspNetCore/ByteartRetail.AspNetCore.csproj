@@ -10,4 +10,8 @@
     <ProjectReference Include="..\ByteartRetail.Common\ByteartRetail.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers" />
+  </ItemGroup>
+
 </Project>

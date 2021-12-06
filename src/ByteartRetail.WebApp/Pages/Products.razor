@@ -1,8 +1,10 @@
 ﻿@page "/products"
 @using System.Text.Json
 @using ByteartRetail.WebApp.Models
+@using System.Text
 @inject HttpClient HttpClient
 @inject IToastService toastService
+@inject UserState UserState
 
 <PageTitle>商品信息</PageTitle>
 
@@ -29,7 +31,7 @@ else
                 <tr>
                     <td>@p.Name</td>
                     <td>@p.Description</td>
-                    <td>@p.Price</td>
+                    <td>@p.Price.ToString("C")</td>
                     <td>
                         <button class="btn btn-primary" @onclick="@(async () => await AddToCartAsync(p.Id))">加入购物车</button>
                     </td>
@@ -40,20 +42,33 @@ else
 }
 
 @code {
-    private ProductSummary[]? products;
+    private ProductViewModel[]? products;
 
     protected override async Task OnInitializedAsync()
     {
-        products = await HttpClient.GetFromJsonAsync<ProductSummary[]>("http://localhost:5293/api/ProductCatalog").ConfigureAwait(false);
-
+        products = await HttpClient.GetFromJsonAsync<ProductViewModel[]>("product-catalog-service/ProductCatalog").ConfigureAwait(false);
     }
 
     private async Task AddToCartAsync(Guid productId)
     {
-        toastService.ShowInfo(productId.ToString(), "成功");
+        var payload = new
+        {
+            customerId = UserState.UserId,
+            productId,
+            quantity = 1
+        };
 
-        Console.WriteLine(productId);
-
-        await Task.Delay(0);
+        try
+        {
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var responseMessage = await HttpClient.PostAsync("shopping-cart-service/ShoppingCarts/add-product", content);
+            responseMessage.EnsureSuccessStatusCode();
+            toastService.ShowSuccess("操作成功");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            toastService.ShowError(ex.Message, "操作失败");
+        }
     }
 }

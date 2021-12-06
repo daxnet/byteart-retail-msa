@@ -1,6 +1,9 @@
 ﻿@using Blazored.Toast.Configuration
+@using ByteartRetail.WebApp.Models
+@using System.Text.Json
 @inherits LayoutComponentBase
-
+@inject HttpClient HttpClient
+@inject UserState UserState
 
 <div class="page">
     <div class="sidebar">
@@ -18,8 +21,22 @@
     </main>
 </div>
 <BlazoredToasts Position="ToastPosition.BottomRight"
-                IconType="IconType.Material"
+                IconType="IconType.FontAwesome"
                 SuccessClass="success-toast-override"
                 SuccessIcon="fa fa-thumbs-up"
                 ErrorIcon="fa fa-bug"
                 Timeout="3" />
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userStates = await HttpClient.GetFromJsonAsync<UserState[]>("customer-service/Customers");
+        if (userStates?.Length > 0)
+        {
+            UserState.UserId = userStates[0].UserId;
+            UserState.Email = userStates[0].Email;
+            UserState.UserName = userStates[0].UserName;
+        }
+    }
+
+}

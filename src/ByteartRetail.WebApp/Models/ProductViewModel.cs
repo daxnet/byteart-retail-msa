@@ -1,6 +1,6 @@
 ﻿namespace ByteartRetail.WebApp.Models
 {
-    public class ProductSummary
+    public class ProductViewModel
     {
         public Guid Id { get; set; }
 

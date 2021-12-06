@@ -1,8 +1,11 @@
 ﻿using ByteartRetail.AspNetCore;
 using ByteartRetail.Common.DataAccess;
+using ByteartRetail.Common.Messaging;
 using ByteartRetail.Services.ShoppingCarts.Models;
+using ByteartRetail.Services.ShoppingCarts.Models.Events;
 using ByteartRetail.Services.ShoppingCarts.ServiceClients;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace ByteartRetail.Services.ShoppingCarts.Controllers
 {
@@ -11,13 +14,16 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
     public class ShoppingCartsController : DataServiceController<ShoppingCart>
     {
         private readonly ProductCatalogServiceClient _productCatalogServiceClient;
+        private readonly IEventPublisher _eventPublisher;
 
         public ShoppingCartsController(
             IDataAccessObject dao, 
+            IEventPublisher eventPublisher,
             ProductCatalogServiceClient productCatalogServiceClient,
             ILogger<ShoppingCartsController> logger) : base(dao, logger)
         {
             _productCatalogServiceClient = productCatalogServiceClient;
+            _eventPublisher = eventPublisher;
         }
 
         [HttpGet("customer/{customerId}")]
@@ -58,7 +64,7 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
                 return NotFound($"Product {request.ProductId} doesn't exist.");
             }
 
-            var lineItem = new ShoppingCartLineItem(request.ProductId.Value, product.Name)
+            var lineItem = new ShoppingCartLineItem(request.ProductId.Value, product.Name, product.Price)
             {
                 Quantity = request.Quantity!.Value,
                 Amount = product.Price * request.Quantity!.Value
@@ -77,6 +83,52 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
             }
 
             return Ok(shoppingCart);
+        }
+
+        [HttpPost("remove-product")]
+        public async Task<IActionResult> RemoveProductFromCartAsync([FromBody] RemoveFromCartRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var shoppingCarts = await Dao.GetAsync<ShoppingCart>(
+                cart => cart.CustomerId == request.CustomerId,
+                cart => cart.Id);
+            if (shoppingCarts?.Count == 0)
+            {
+                return NotFound("The shopping cart doesn't exist.");
+            }
+
+            var shoppingCart = shoppingCarts!.First();
+            shoppingCart.RemoveItem(request.ProductId);
+            await Dao.UpdateByIdAsync(shoppingCart.Id, shoppingCart);
+            return Ok(shoppingCart);
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> CheckOutAsync([FromBody] CheckoutRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("test-event/{routingKey}")]
+        public async Task<IActionResult> TestEventPublishAsync(string routingKey )
+        {
+            await this._eventPublisher.PublishAsync(new ShoppingCartCheckoutEvent
+            {
+                Id = Guid.NewGuid(),
+                RoutingKey = routingKey,
+                Timestamp = DateTime.UtcNow
+            });
+
+            return Ok();
         }
     }
 }
