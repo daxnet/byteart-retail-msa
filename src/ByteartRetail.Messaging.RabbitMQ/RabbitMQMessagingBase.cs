@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using ByteartRetail.Common.Messaging;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace ByteartRetail.Messaging.RabbitMQ;
@@ -28,6 +29,7 @@ public abstract class RabbitMQMessagingBase : IDisposable
     }
 
     protected IModel Channel { get; }
+    
     protected ILogger Logger { get; }
     
     protected string ExchangeName { get; }

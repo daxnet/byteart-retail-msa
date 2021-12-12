@@ -108,7 +108,7 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
         }
 
         [HttpPost("checkout")]
-        public async Task<IActionResult> CheckOutAsync([FromBody] CheckoutRequest request)
+        public IActionResult CheckOutAsync([FromBody] CheckoutRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -124,7 +124,6 @@ namespace ByteartRetail.Services.ShoppingCarts.Controllers
             await this._eventPublisher.PublishAsync(new ShoppingCartCheckoutEvent
             {
                 Id = Guid.NewGuid(),
-                RoutingKey = routingKey,
                 Timestamp = DateTime.UtcNow
             });
 

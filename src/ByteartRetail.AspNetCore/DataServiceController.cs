@@ -49,6 +49,7 @@ namespace ByteartRetail.AspNetCore
             }
 
             await _dao.AddAsync(entity);
+            // ReSharper disable once Mvc.ActionNotResolved
             return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, entity);
         }
 
@@ -134,6 +135,7 @@ namespace ByteartRetail.AspNetCore
             }
 
             await _dao.AddAsync(entity);
+            // ReSharper disable once Mvc.ActionNotResolved
             return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, entity.Id);
         }
 
