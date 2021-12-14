@@ -2,7 +2,7 @@
 
 namespace ByteartRetail.TestClients.Common;
 
-public class MessageEvent : EventBase
+public class TextEvent : EventBase
 {
-    public string? Message { get; set; }
+    public string? Text { get; set; }
 }

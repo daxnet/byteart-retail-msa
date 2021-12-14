@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Runtime.Loader;
+using ByteartRetail.Common.Messaging;
 using ByteartRetail.Messaging.RabbitMQ;
 using ByteartRetail.TestClients.Common;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,15 +14,31 @@ var messagePublisher = new RabbitMQMessagePublisher(
     "direct", 
     NullLogger<RabbitMQMessagePublisher>.Instance);
 
-messagePublisher.Acknowledge += (sender, args) =>
-{
-    Console.WriteLine("Message sent.");
-};
+// messagePublisher.Acknowledge += (sender, args) =>
+// {
+//     Console.WriteLine("\nMessage sent.");
+// };
+//
+// messagePublisher.NegativeAcknowledge += (sender, args) =>
+// {
+//     Console.WriteLine("\nMessage failed to send.");
+// };
 
-messagePublisher.NegativeAcknowledge += (sender, args) =>
+while (true)
 {
-    Console.WriteLine("Message failed to send.");
-};
+    Console.Write("Enter a numeric or text value: ");
+    var input = Console.ReadLine();
+    if (string.IsNullOrEmpty(input))
+        break;
+    IEvent evnt;
+    if (int.TryParse(input, out var v))
+    {
+        evnt = new RandomNumberEvent { Value = v };
+    }
+    else
+    {
+        evnt = new TextEvent { Text = input };
+    }
 
-var evnt = new MessageEvent { Message = "Hello, World!" };
-await messagePublisher.PublishAsync(evnt);
+    await messagePublisher.PublishAsync(evnt);
+}

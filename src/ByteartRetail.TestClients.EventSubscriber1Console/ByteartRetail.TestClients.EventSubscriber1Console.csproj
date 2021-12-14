@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -8,12 +9,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ByteartRetail.Common\ByteartRetail.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="RabbitMQ.Client" Version="6.2.2" />
+      <ProjectReference Include="..\ByteartRetail.Messaging.RabbitMQ\ByteartRetail.Messaging.RabbitMQ.csproj" />
+      <ProjectReference Include="..\ByteartRetail.TestClients.Common\ByteartRetail.TestClients.Common.csproj" />
     </ItemGroup>
 
 </Project>

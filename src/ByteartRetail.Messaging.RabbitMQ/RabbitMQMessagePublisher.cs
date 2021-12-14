@@ -1,7 +1,9 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ByteartRetail.Common.Messaging;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -33,7 +35,9 @@ public class RabbitMQMessagePublisher : RabbitMQMessagingBase, IEventPublisher
     public Task PublishAsync(IEvent @event, CancellationToken cancellationToken = default)
     {
         var eventData = new EventData(@event);
-        var payload = JsonSerializer.SerializeToUtf8Bytes(eventData, typeof(EventData));
+        // var payload = JsonSerializer.SerializeToUtf8Bytes(eventData, typeof(EventData));
+        var payloadJson = JsonConvert.SerializeObject(eventData, Formatting.None);
+        var payload = Encoding.UTF8.GetBytes(payloadJson);
         Channel.BasicPublish(ExchangeName, @event.GetType().FullName, null, payload);
         return Task.CompletedTask;
     }

@@ -30,10 +30,12 @@ public class DefaultEventHandlingContext : IEventHandlingContext
         var handled = true;
         foreach (var handlerType in handlerTypes)
         {
-            var handler = (dynamic?)Activator.CreateInstance(handlerType);
-            if (handler != null)
+            var handlerInstance = Activator.CreateInstance(handlerType);
+            var methodInfo = handlerType.GetMethod("HandleAsync", new[] { eventType, typeof(CancellationToken) });
+            if (handlerInstance != null && methodInfo != null)
             {
-                handled &= await handler.HandleAsync(evnt, cancellationToken);
+                var returnValue = methodInfo.Invoke(handlerInstance, new object[] { evnt, cancellationToken }) as Task<bool>;
+                handled &= await (returnValue ?? Task.FromResult(false));
             }
         }
 

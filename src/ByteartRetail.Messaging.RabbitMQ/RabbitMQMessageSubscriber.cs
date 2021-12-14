@@ -2,12 +2,13 @@ using System.Text;
 using System.Text.Json;
 using ByteartRetail.Common.Messaging;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace ByteartRetail.Messaging.RabbitMQ;
 
-public class RabbitMQMessageSubscriber : RabbitMQMessagingBase, IEventSubscriber
+public sealed class RabbitMQMessageSubscriber : RabbitMQMessagingBase, IEventSubscriber
 {
     private const string EventWasNotHandledErrorMessage = "Event was not handled. Event ID: {0}";
     private readonly EventingBasicConsumer _consumer;
@@ -29,12 +30,13 @@ public class RabbitMQMessageSubscriber : RabbitMQMessagingBase, IEventSubscriber
     {
         var messageBody = e.Body;
         var json = Encoding.UTF8.GetString(messageBody.ToArray());
-        var eventData = JsonSerializer.Deserialize<EventData>(json);
+        // var eventData = JsonSerializer.Deserialize<EventData>(json);
+        var eventData = JsonConvert.DeserializeObject<EventData>(json);
         if (eventData == null)
         {
             return;
         }
-        var evnt = eventData?.AsEvent();
+        var evnt = eventData.AsEvent();
         if (evnt == null)
         {
             return;
@@ -64,7 +66,11 @@ public class RabbitMQMessageSubscriber : RabbitMQMessagingBase, IEventSubscriber
     {
         if (string.IsNullOrEmpty(queueName))
         {
-            queueName = this.Channel.QueueDeclare().QueueName;
+            queueName = Channel.QueueDeclare().QueueName;
+        }
+        else
+        {
+            Channel.QueueDeclare(queueName, exclusive: false);
         }
 
         Channel.QueueBind(queueName, ExchangeName, routingKey);
