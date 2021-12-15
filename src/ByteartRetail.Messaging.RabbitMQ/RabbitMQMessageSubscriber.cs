@@ -70,7 +70,7 @@ public sealed class RabbitMQMessageSubscriber : RabbitMQMessagingBase, IEventSub
         }
         else
         {
-            Channel.QueueDeclare(queueName, exclusive: false);
+            Channel.QueueDeclare(queueName, exclusive: false, autoDelete: false);
         }
 
         Channel.QueueBind(queueName, ExchangeName, routingKey);

@@ -4,5 +4,5 @@ namespace ByteartRetail.TestClients.Common;
 
 public class RandomNumberEvent : EventBase
 {
-    public int Value { get; set; }
+    public long Value { get; set; }
 }
