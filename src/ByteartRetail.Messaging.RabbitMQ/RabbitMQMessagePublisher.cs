@@ -32,13 +32,12 @@ public class RabbitMQMessagePublisher : RabbitMQMessagingBase, IEventPublisher
         Acknowledge?.Invoke(sender, e);
     }
 
-    public Task PublishAsync(IEvent @event, CancellationToken cancellationToken = default)
+    public Task PublishAsync(IEvent @event, string? routingKey = null, CancellationToken cancellationToken = default)
     {
         var eventData = new EventData(@event);
-        // var payload = JsonSerializer.SerializeToUtf8Bytes(eventData, typeof(EventData));
         var payloadJson = JsonConvert.SerializeObject(eventData, Formatting.None);
         var payload = Encoding.UTF8.GetBytes(payloadJson);
-        Channel.BasicPublish(ExchangeName, @event.GetType().FullName, null, payload);
+        Channel.BasicPublish(ExchangeName, routingKey ?? @event.GetType().FullName, null, payload);
         return Task.CompletedTask;
     }
 

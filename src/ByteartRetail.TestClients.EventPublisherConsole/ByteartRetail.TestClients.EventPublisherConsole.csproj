@@ -13,4 +13,8 @@
       <ProjectReference Include="..\ByteartRetail.TestClients.Common\ByteartRetail.TestClients.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Sagas\" />
+    </ItemGroup>
+
 </Project>
