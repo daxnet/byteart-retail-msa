@@ -9,12 +9,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ByteartRetail.Common\ByteartRetail.Common.csproj" />
+      <ProjectReference Include="..\ByteartRetail.DataAccess.Mongo\ByteartRetail.DataAccess.Mongo.csproj" />
       <ProjectReference Include="..\ByteartRetail.Messaging.RabbitMQ\ByteartRetail.Messaging.RabbitMQ.csproj" />
       <ProjectReference Include="..\ByteartRetail.TestClients.Common\ByteartRetail.TestClients.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Sagas\" />
+      <Folder Include="Events" />
     </ItemGroup>
 
 </Project>

@@ -2,9 +2,11 @@
 
 using System.Runtime.Loader;
 using ByteartRetail.Common.Messaging;
+using ByteartRetail.DataAccess.Mongo;
 using ByteartRetail.Messaging.RabbitMQ;
 using ByteartRetail.TestClients.Common;
 using Microsoft.Extensions.Logging.Abstractions;
+using MongoDB.Driver;
 using RabbitMQ.Client;
 
 var connectionFactory = new ConnectionFactory { HostName = "localhost" };
@@ -14,15 +16,7 @@ var messagePublisher = new RabbitMQMessagePublisher(
     "direct", 
     NullLogger<RabbitMQMessagePublisher>.Instance);
 
-// messagePublisher.Acknowledge += (sender, args) =>
-// {
-//     Console.WriteLine("\nMessage sent.");
-// };
-//
-// messagePublisher.NegativeAcknowledge += (sender, args) =>
-// {
-//     Console.WriteLine("\nMessage failed to send.");
-// };
+var dao = new MongoDataAccessObject(MongoUrl.Create(""), "sagas");
 
 while (true)
 {

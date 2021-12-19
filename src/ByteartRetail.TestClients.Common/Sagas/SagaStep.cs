@@ -25,41 +25,39 @@ namespace ByteartRetail.TestClients.Common.Sagas
 
         public string? FailedReason { get; set; }
 
-        protected abstract IEvent GetStepEventInternal();
+        protected abstract (string, string) GetStepEventDefinitionInternal();
 
-        protected virtual IEvent? GetStepCompensateEventInternal() => null;
+        protected virtual (string?, string?) GetStepCompensateEventInternal() => (null, null);
 
         public SagaEvent GetStepEvent(Guid sagaId)
         {
-            var stepEvent = GetStepEventInternal();
-            var payload = JsonConvert.SerializeObject(stepEvent);
-
+            var (stepEventTypeName, stepEventParameters) = GetStepEventDefinitionInternal();
+            
             return new SagaEvent
             {
                 SagaStepId = Id,
                 ServiceName = ServiceName,
-                EventType = stepEvent.GetType().FullName,
+                EventType = stepEventTypeName,
                 SagaId = sagaId,
-                Payload = payload
+                Payload = stepEventParameters
             };
         }
 
         public SagaEvent? GetStepCompensateEvent(Guid sagaId)
         {
-            var compensateEvent = GetStepCompensateEventInternal();
-            if (compensateEvent == null)
+            var (stepCompensateEventTypeName, stepCompensateEventParameters) = GetStepCompensateEventInternal();
+            if (string.IsNullOrEmpty(stepCompensateEventTypeName) && string.IsNullOrEmpty(stepCompensateEventParameters))
             {
                 return null;
             }
 
-            var payload = JsonConvert.SerializeObject(compensateEvent);
             return new SagaEvent
             {
                 SagaStepId = Id,
                 ServiceName = ServiceName,
-                EventType = compensateEvent.GetType().FullName,
+                EventType = stepCompensateEventTypeName,
                 SagaId = sagaId,
-                Payload = payload
+                Payload = stepCompensateEventParameters
             };
         }
     }
