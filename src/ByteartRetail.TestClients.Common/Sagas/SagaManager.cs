@@ -26,7 +26,7 @@ namespace ByteartRetail.TestClients.Common.Sagas
             return saga;
         }
 
-        public async Task Start(Saga saga, CancellationToken cancellationToken = default)
+        public async Task StartAsync(Saga saga, CancellationToken cancellationToken = default)
         {
             var sagaEvent = saga.Start();
             if (sagaEvent != null)
@@ -39,7 +39,8 @@ namespace ByteartRetail.TestClients.Common.Sagas
 
         public async Task TransitAsync(SagaEvent sagaEvent, CancellationToken cancellationToken = default)
         {
-            var saga = await _dao.GetByIdAsync<Saga>(sagaEvent.Id, cancellationToken);
+            Console.WriteLine($"{sagaEvent.EventType} - Succeeded: {sagaEvent.Succeeded}");
+            var saga = await _dao.GetByIdAsync<Saga>(sagaEvent.SagaId, cancellationToken);
             var nextStepEvent = saga.ProcessEvent(sagaEvent);
             if (nextStepEvent != null)
             {

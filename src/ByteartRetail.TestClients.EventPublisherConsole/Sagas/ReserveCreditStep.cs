@@ -5,15 +5,20 @@ namespace ByteartRetail.TestClients.EventPublisherConsole.Sagas;
 
 public class ReserveCreditStep : SagaStep
 {
-    private readonly int _reservingCredit;
+    public int ReservingCredit { get; set; }
 
     public ReserveCreditStep(string serviceName, int reservingCredit)
         : base(serviceName)
     {
-        _reservingCredit = reservingCredit;
+        ReservingCredit = reservingCredit;
     }
     protected override (string, string) GetStepEventDefinitionInternal()
     {
-        return ("reserve-credit", $"ReservingCredit={_reservingCredit}");
+        return ("reserve-credit", $"ReservingCredit={ReservingCredit}");
+    }
+
+    protected override (string?, string?) GetStepCompensateEventInternal()
+    {
+        return ("compensate-reserve-credit", $"ReservingCredit={ReservingCredit}");
     }
 }

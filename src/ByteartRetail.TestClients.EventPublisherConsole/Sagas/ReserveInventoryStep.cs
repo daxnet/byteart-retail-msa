@@ -5,15 +5,16 @@ namespace ByteartRetail.TestClients.EventPublisherConsole.Sagas;
 
 public class ReserveInventoryStep : SagaStep
 {
-    private readonly float _reservingAmount;
+    public float ReservingAmount { get; set; }
 
     public ReserveInventoryStep(string serviceName, float reservingAmount)
+        : base(serviceName)
     {
-        _reservingAmount = reservingAmount;
+        ReservingAmount = reservingAmount;
     }
     
     protected override (string, string) GetStepEventDefinitionInternal()
     {
-        return ("reserve-inventory", $"ReservingAmount={_reservingAmount}");
+        return ("reserve-inventory", $"ReservingAmount={ReservingAmount}");
     }
 }

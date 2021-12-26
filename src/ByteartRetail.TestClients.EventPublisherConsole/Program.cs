@@ -1,38 +1,67 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Runtime.Loader;
+using ByteartRetail.Common.DataAccess;
 using ByteartRetail.Common.Messaging;
 using ByteartRetail.DataAccess.Mongo;
 using ByteartRetail.Messaging.RabbitMQ;
-using ByteartRetail.TestClients.Common;
+using ByteartRetail.TestClients.Common.Sagas;
+using ByteartRetail.TestClients.EventPublisherConsole.Sagas;
 using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 
 var connectionFactory = new ConnectionFactory { HostName = "localhost" };
-var messagePublisher = new RabbitMQMessagePublisher(
+var eventPublisher = new RabbitMQMessagePublisher(
     connectionFactory, 
-    "byteartretail.testclients", 
+    "sagaExchange", 
     "direct", 
     NullLogger<RabbitMQMessagePublisher>.Instance);
 
-var dao = new MongoDataAccessObject(MongoUrl.Create(""), "sagas");
+var eventHandlingContext = new DefaultEventHandlingContext();
+eventHandlingContext.RegisterHandler<SagaEvent, SagaEventHandler>();
+var eventSubscriber = new RabbitMQMessageSubscriber(
+    eventHandlingContext,
+    connectionFactory,
+    "sagaReturnExchange",
+    "direct",
+    NullLogger<RabbitMQMessageSubscriber>.Instance
+);
+eventSubscriber.Subscribe("shopping-cart");
 
-while (true)
+var dao = new MongoDataAccessObject(MongoUrl.Create("mongodb://localhost:27017"), "sagas");
+var sagaManager = new SagaManager(dao, eventPublisher);
+var saga = await sagaManager.CreateAsync(new SagaStep[]
 {
-    Console.Write("Enter a numeric or text value: ");
-    var input = Console.ReadLine();
-    if (string.IsNullOrEmpty(input))
-        break;
-    IEvent evnt;
-    if (int.TryParse(input, out var v))
-    {
-        evnt = new RandomNumberEvent { Value = v };
-    }
-    else
-    {
-        evnt = new TextEvent { Text = input };
-    }
+    new CreateSalesOrderStep("sales-order", "daxnet"),
+    new CheckCustomerValidityStep("customers", "daxnet"),
+    new ReserveCreditStep("customers", 100),
+    new ReserveInventoryStep("product-catalog", 100)
+});
 
-    await messagePublisher.PublishAsync(evnt);
+await sagaManager.StartAsync(saga);
+Console.WriteLine("Saga started, press ENTER to exit.");
+Console.ReadLine();
+
+class SagaEventHandler : IEventHandler<SagaEvent>
+{
+    private readonly SagaManager _sagaManager;
+
+    public SagaEventHandler()
+    {
+        var connectionFactory = new ConnectionFactory { HostName = "localhost" };
+        var eventPublisher = new RabbitMQMessagePublisher(
+            connectionFactory, 
+            "sagaExchange", 
+            "direct", 
+            NullLogger<RabbitMQMessagePublisher>.Instance);
+        var dao = new MongoDataAccessObject(MongoUrl.Create("mongodb://localhost:27017"), "sagas");
+        _sagaManager = new SagaManager(dao, eventPublisher);
+    }
+    
+    public async Task<bool> HandleAsync(SagaEvent @event, CancellationToken cancellationToken = default)
+    {
+        await _sagaManager.TransitAsync(@event, cancellationToken);
+        return true;
+    }
 }

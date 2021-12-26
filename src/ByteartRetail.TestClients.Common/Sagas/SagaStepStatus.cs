@@ -8,11 +8,12 @@ namespace ByteartRetail.TestClients.Common.Sagas
 {
     public enum SagaStepStatus
     {
-        Awaiting,
-        Started,
-        Failed,
-        Succeeded,
-        Compensating,
-        Compensated
+        Awaiting = 0,
+        Started = 1,
+        Failed = 2,
+        Succeeded = 3,
+        Compensating = 4,
+        Compensated = 5,
+        Cancelled = 6
     }
 }

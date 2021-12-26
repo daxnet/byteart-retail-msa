@@ -8,10 +8,10 @@ namespace ByteartRetail.TestClients.Common.Sagas
 {
     public enum SagaStatus
     {
-        Created,
-        Started,
-        Aborting,
-        Aborted,
-        Completed
+        Created = 0,
+        Started = 1,
+        Aborting = 2,
+        Aborted = 3,
+        Completed = 4
     }
 }

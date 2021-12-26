@@ -24,7 +24,7 @@ public abstract class RabbitMQMessagingBase : IDisposable
         ExchangeName = exchangeName;
         ExchangeType = exchangeType;
         Channel = _connection.CreateModel();
-        Channel.ExchangeDeclare(ExchangeName, ExchangeType);
+        Channel.ExchangeDeclare(ExchangeName, ExchangeType,  true);
         Logger = logger;
     }
 

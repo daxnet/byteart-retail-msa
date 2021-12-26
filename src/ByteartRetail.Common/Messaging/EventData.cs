@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace ByteartRetail.Common.Messaging;
@@ -57,10 +58,39 @@ public sealed class EventData
             var propertyInfo = eventType.GetProperty(key, BindingFlags.Public | BindingFlags.Instance);
             if (propertyInfo != null && propertyInfo.CanWrite)
             {
-                propertyInfo.SetValue(evnt, value);
+                propertyInfo.SetValue(evnt, InferObjectValue(propertyInfo.PropertyType, value));
             }
         }
 
         return evnt;
+    }
+
+    private object? InferObjectValue(Type type, object? val)
+    {
+        if (type == typeof(string))
+        {
+            return val?.ToString();
+        }
+        if (type == typeof(Guid))
+        {
+            return new Guid(val?.ToString() ?? string.Empty);
+        }
+
+        if (type == typeof(int))
+        {
+            return Convert.ToInt32(val);
+        }
+
+        if (type == typeof(float))
+        {
+            return Convert.ToSingle(val);
+        }
+
+        if (type == typeof(double))
+        {
+            return Convert.ToDouble(val);
+        }
+
+        return val;
     }
 }

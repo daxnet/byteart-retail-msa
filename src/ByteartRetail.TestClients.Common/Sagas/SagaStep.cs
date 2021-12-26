@@ -29,6 +29,15 @@ namespace ByteartRetail.TestClients.Common.Sagas
 
         protected virtual (string?, string?) GetStepCompensateEventInternal() => (null, null);
 
+        public bool RequiresCompensate
+        {
+            get
+            {
+                var (type, parameters) = GetStepCompensateEventInternal();
+                return !string.IsNullOrEmpty(type) && !string.IsNullOrEmpty(parameters);
+            }
+        }
+
         public SagaEvent GetStepEvent(Guid sagaId)
         {
             var (stepEventTypeName, stepEventParameters) = GetStepEventDefinitionInternal();

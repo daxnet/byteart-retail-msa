@@ -11,7 +11,7 @@ namespace ByteartRetail.TestClients.Common.Sagas
     {
         #region Public Constructors
 
-        public Saga() { }
+        // public Saga() { }
 
         public Saga(IEnumerable<SagaStep> steps)
         {
@@ -77,7 +77,7 @@ namespace ByteartRetail.TestClients.Common.Sagas
                     return null;
                 }
 
-                return Steps[idx - 1];
+                return Steps[idx];
             }
         }
 
@@ -93,49 +93,49 @@ namespace ByteartRetail.TestClients.Common.Sagas
             }
 
             var currentStep = CurrentStep;
-            if (currentStep != null)
+            if (currentStep == null) return null;
+            
+            if (sagaEvent.Succeeded)
             {
-                if (sagaEvent.Succeeded)
+                currentStep.Status = currentStep.Status switch
                 {
-                    currentStep.Status = currentStep.Status switch
-                    {
-                        SagaStepStatus.Started => SagaStepStatus.Succeeded,
-                        SagaStepStatus.Compensating => SagaStepStatus.Compensated,
-                        _ => throw new InvalidOperationException()
-                    };
-                }
-                else
+                    SagaStepStatus.Started => SagaStepStatus.Succeeded,
+                    SagaStepStatus.Compensating => SagaStepStatus.Compensated,
+                    _ => throw new InvalidOperationException()
+                };
+            }
+            else
+            {
+                if (currentStep.Status == SagaStepStatus.Started)
                 {
-                    currentStep.Status = currentStep.Status switch
-                    {
-                        SagaStepStatus.Started => SagaStepStatus.Failed,
-                        SagaStepStatus.Compensating => SagaStepStatus.Failed,
-                        _ => throw new InvalidOperationException()
-                    };
+                    CancelSubsequentSteps();
                 }
-
-                SagaEvent? firingEvent = null;
-                if (currentStep.Status == SagaStepStatus.Succeeded)
+                currentStep.Status = currentStep.Status switch
                 {
-                    firingEvent = GoNext()?.GetStepEvent(this.Id);
-                }
-                else if (currentStep.Status == SagaStepStatus.Compensated ||
-                    currentStep.Status == SagaStepStatus.Failed)
-                {
-                    firingEvent = GoPrevious()?.GetStepCompensateEvent(this.Id);
-                }
-
-                if (firingEvent != null)
-                {
-                    UpdateSagaStatus();
-                    MarkProcessed(sagaEvent);
-                    return firingEvent;
-                }
+                    SagaStepStatus.Started => SagaStepStatus.Failed,
+                    SagaStepStatus.Compensating => SagaStepStatus.Failed,
+                    _ => throw new InvalidOperationException()
+                };
             }
 
-            return null;
-        }
+            SagaEvent? firingEvent = null;
+            switch (currentStep.Status)
+            {
+                case SagaStepStatus.Succeeded:
+                    firingEvent = GoNext()?.GetStepEvent(this.Id);
+                    break;
+                case SagaStepStatus.Compensated:
+                case SagaStepStatus.Failed:
+                    firingEvent = GoPrevious()?.GetStepCompensateEvent(this.Id);
+                    break;
+            }
+                
+            UpdateSagaStatus();
+            MarkProcessed(sagaEvent);
 
+            return firingEvent ?? null;
+        }
+        
         public SagaEvent? Start()
         {
             if (Status == SagaStatus.Created && Steps.Any())
@@ -174,16 +174,33 @@ namespace ByteartRetail.TestClients.Common.Sagas
         private SagaStep? GoPrevious()
         {
             var prev = PreviousStep;
-            if (prev == null)
+            while (prev != null)
             {
-                return null;
+                CurrentStepId = prev.Id;
+                if (prev.RequiresCompensate)
+                {
+                    prev.Status = SagaStepStatus.Compensating;
+                    return prev;
+                }
+
+                prev = PreviousStep;
             }
 
-            prev.Status = SagaStepStatus.Started;
-            CurrentStepId = prev.Id;
-            return prev;
+            return null;
         }
         private void MarkProcessed(SagaEvent sagaEvent) => ProcessedEventIds.Add(sagaEvent.Id);
+        
+        private void CancelSubsequentSteps()
+        {
+            var currentStepIdx = Steps.FindIndex(x => x.Id == CurrentStepId);
+            if (currentStepIdx >= 0)
+            {
+                for (var idx = currentStepIdx + 1; idx < Steps.Count; idx++)
+                {
+                    Steps[idx].Status = SagaStepStatus.Cancelled;
+                }
+            }
+        }
 
         private void UpdateSagaStatus()
         {
@@ -197,7 +214,10 @@ namespace ByteartRetail.TestClients.Common.Sagas
             {
                 Status = SagaStatus.Started;
             }
-            else if (Steps.All(s => s.Status == SagaStepStatus.Failed ||s.Status == SagaStepStatus.Compensated))
+            else if (Steps.All(s => s.Status == SagaStepStatus.Succeeded ||
+                                    s.Status == SagaStepStatus.Failed ||
+                                    s.Status == SagaStepStatus.Compensated ||
+                                    s.Status == SagaStepStatus.Cancelled))
             {
                 Status = SagaStatus.Aborted;
             }

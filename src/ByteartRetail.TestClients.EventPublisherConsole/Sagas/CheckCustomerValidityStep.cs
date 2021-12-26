@@ -5,16 +5,16 @@ namespace ByteartRetail.TestClients.EventPublisherConsole.Sagas;
 
 public class CheckCustomerValidityStep : SagaStep
 {
-    private readonly string _customerName;
+    public string CustomerName { get; set; }
 
     public CheckCustomerValidityStep(string serviceName, string customerName)
         : base(serviceName)
     {
-        _customerName = customerName;
+        CustomerName = customerName;
     }
     
     protected override (string, string) GetStepEventDefinitionInternal()
     {
-        return ("check-customer-validity", $"customerName={_customerName}");
+        return ("check-customer-validity", $"customerName={CustomerName}");
     }
 }

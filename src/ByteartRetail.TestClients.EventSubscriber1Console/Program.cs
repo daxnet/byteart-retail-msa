@@ -2,53 +2,85 @@
 
 using ByteartRetail.Common.Messaging;
 using ByteartRetail.Messaging.RabbitMQ;
-using ByteartRetail.TestClients.Common;
+using ByteartRetail.TestClients.Common.Sagas;
 using Microsoft.Extensions.Logging.Abstractions;
 using RabbitMQ.Client;
 
-var queueName = "byteartretail.subscriber1";
-var routingKey = typeof(TextEvent).FullName;
-
-if (args.Length == 1)
-{
-    routingKey = args[0];
-}
-else if (args.Length == 2)
-{
-    routingKey = args[0];
-    queueName = args[1];
-}
-
 var eventHandlingContext = new DefaultEventHandlingContext();
-eventHandlingContext.RegisterHandler<TextEvent, TextEventHandler>();
-eventHandlingContext.RegisterHandler<RandomNumberEvent, RandomNumberEventHandler>();
+eventHandlingContext.RegisterHandler<SagaEvent, SagaEventHandler>();
 var connectionFactory = new ConnectionFactory { HostName = "localhost" };
 
-var messageSubscriber = new RabbitMQMessageSubscriber(
+var eventSubscriber = new RabbitMQMessageSubscriber(
     eventHandlingContext,
     connectionFactory,
-    "byteartretail.testclients",
+    "sagaExchange",
     "direct",
     NullLogger<RabbitMQMessageSubscriber>.Instance);
 
-messageSubscriber.Subscribe(routingKey, queueName);
-Console.WriteLine("Subscriber1 started");
+eventSubscriber.Subscribe("customers");
+Console.WriteLine("customers service started");
 Console.ReadLine();
 
-class TextEventHandler : IEventHandler<TextEvent>
+class SagaEventHandler : IEventHandler<SagaEvent>
 {
-    public Task<bool> HandleAsync(TextEvent @event, CancellationToken cancellationToken = default)
-    {
-        Console.WriteLine($"Text Received: {@event.Text}");
-        return Task.FromResult(true);
-    }
-}
+    private readonly RabbitMQMessagePublisher _messagePublisher;
 
-class RandomNumberEventHandler : IEventHandler<RandomNumberEvent>
-{
-    public Task<bool> HandleAsync(RandomNumberEvent @event, CancellationToken cancellationToken = default)
+    public SagaEventHandler()
     {
-        Console.WriteLine($"Number Value Received: {@event.Value}");
-        return Task.FromResult(true);
+        var connectionFactory = new ConnectionFactory { HostName = "localhost" };
+        _messagePublisher = new RabbitMQMessagePublisher(
+            connectionFactory,
+            "sagaReturnExchange",
+            "direct",
+            NullLogger<RabbitMQMessagePublisher>.Instance
+        );
+    }
+    
+    public async Task<bool> HandleAsync(SagaEvent @event, CancellationToken cancellationToken = default)
+    {
+        switch (@event.EventType)
+        {
+            case "check-customer-validity":
+                var customerName = @event.Payload.Split('=')[1];
+                Console.WriteLine($"  -> Customer name: {customerName}");
+                @event.Succeeded = customerName == "daxnet";
+                if (!@event.Succeeded)
+                {
+                    @event.FailedReason = "Customer name is not daxnet";
+                }
+                
+                Console.WriteLine($"check-customer-validity: Succeeded: {@event.Succeeded}, Failed Reason: {@event.FailedReason}");
+                break;
+            case "reserve-credit":
+                if (int.TryParse(@event.Payload.Split('=')[1], out var creditValue))
+                {
+                    Console.WriteLine($"  -> Credit value: {creditValue}");
+                    @event.Succeeded = creditValue <= 1000;
+                    if (!@event.Succeeded)
+                    {
+                        @event.FailedReason = "Credit exceeded the allowed limit.";
+                    }
+                }
+                else
+                {
+                    @event.Succeeded = false;
+                    @event.FailedReason = "Credit value is not in a correct format.";
+                }
+
+                Console.WriteLine($"reserve-credit: Succeeded: {@event.Succeeded}, Failed Reason: {@event.FailedReason}");
+                break;
+            case "compensate-reserve-credit":
+                if (int.TryParse(@event.Payload.Split('=')[1], out var val))
+                {
+                    Console.WriteLine($"  -> Compensated with the amount of {val}");
+                    @event.Succeeded = true;
+                }
+
+                Console.WriteLine($"compensate-reserve-credit: Succeeded: {@event.Succeeded}, Failed Reason: {@event.FailedReason}");
+                break;
+        }
+
+        await _messagePublisher.PublishAsync(@event, "shopping-cart");
+        return true;
     }
 }
